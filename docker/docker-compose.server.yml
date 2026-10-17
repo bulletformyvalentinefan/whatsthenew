@@ -1,0 +1,24 @@
+# docker-compose.server.yml — para el servidor: usa la imagen publicada en GHCR.
+#
+#   docker compose -f docker/docker-compose.server.yml pull
+#   docker compose -f docker/docker-compose.server.yml run --rm whatsthenew
+#
+# El `.env` (con el token del repo privado y la clave del modelo) vive en el
+# servidor, nunca en la imagen ni en el repositorio.
+services:
+  whatsthenew:
+    image: ghcr.io/bulletformyvalentinefan/whatsthenew:latest
+    env_file:
+      - ../.env
+    environment:
+      PUBLISH_PROPOSAL: "1"
+      PLAN_DIR: /tmp/whatsthenew-plan
+      PLAN_FILE: /tmp/whatsthenew-plan/GOD_PLAN.md
+      TMP_RAW: /tmp/whatsthenew_raw.json
+      OUTPUT_FILE: /app/output/PROPOSED_UPDATES.md
+      PROPOSED_PLAN_FILE: /app/output/GOD_PLAN.proposed.md
+    volumes:
+      - ../output:/app/output
+    # Límites holgados: el trabajo pesado (la IA) corre fuera, en el proveedor.
+    mem_limit: 1g
+    restart: "no"
