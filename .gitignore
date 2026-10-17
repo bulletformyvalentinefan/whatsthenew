@@ -1,0 +1,35 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# --- Secretos / entorno ---
+.env
+.env.*
+!.env.example
+
+# --- Datos de ejecución (efímeros) ---
+/tmp/
+*.raw.json
+/data/
+/output/raw/
+/output/*.json
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# --- Mantener la carpeta de salida ---
+!output/.gitkeep
