@@ -17,10 +17,11 @@ if git ls-files --error-unmatch .env >/dev/null 2>&1; then
 fi
 
 # 2) variables sensibles con valor no vacío en archivos versionados
-if git grep -nE '(REDDIT_CLIENT_SECRET|REDDIT_CLIENT_ID|DISCORD_WEBHOOK|GITHUB_TOKEN|AWS_SECRET_ACCESS_KEY)=[^[:space:]]+' -- \
+SECRET_RE='(REDDIT_CLIENT_SECRET|REDDIT_CLIENT_ID|DISCORD_WEBHOOK|GITHUB_TOKEN|PLAN_REPO_TOKEN|OPENROUTER_API_KEY|OPENAI_API_KEY|ANTHROPIC_API_KEY|AWS_SECRET_ACCESS_KEY)=[^[:space:]]+'
+if git grep -nE "$SECRET_RE" -- \
     ':!.env.example' ':!docs/*' ':!*.md' >/dev/null 2>&1; then
   echo "ERROR: posible secreto versionado (revisa la salida de git grep)."
-  git grep -nE '(REDDIT_CLIENT_SECRET|REDDIT_CLIENT_ID|DISCORD_WEBHOOK|GITHUB_TOKEN|AWS_SECRET_ACCESS_KEY)=[^[:space:]]+' -- \
+  git grep -nE "$SECRET_RE" -- \
     ':!.env.example' ':!docs/*' ':!*.md' || true
   fail=1
 fi
