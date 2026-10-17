@@ -35,6 +35,8 @@ class Item:
     posted_at: str = ""
     fetched_at: str = field(default_factory=now_local_iso)
     query: str = ""
+    replies: int = 0
+    has_replies: bool = False
     excerpt: str = ""
 
     def to_dict(self) -> dict[str, Any]:

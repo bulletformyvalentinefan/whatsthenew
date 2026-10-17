@@ -3,11 +3,13 @@
   "comment": "Búsquedas de Reddit. Reddit es la fuente más fuerte: se arma con cuidado.",
   "env_note": "Los endpoints, el user-agent, el ritmo y las credenciales se leen de variables de entorno (REDDIT_*, USER_AGENT). Lo de abajo es referencia pública, no secreto.",
   "auth": {
-    "mode": "oauth_client_credentials",
-    "login_first": "Primero se hace login (authenticate) y luego las búsquedas, con pausa entre cada una.",
+    "mode": "pullpush_primario__rss_respaldo__oauth_opcional",
+    "note": "Camino principal: PullPush (espejo público de Reddit) da tema, fecha y nº de respuestas en una sola petición, sin cuenta ni aprobación. Si falla, se usa el RSS de Reddit. El login OAuth (client_credentials) es opcional y solo se usa si hay credenciales en .env.",
+    "sources_order": ["pullpush", "rss", "oauth"],
+    "login_first": "Si hay credenciales: primero el login y luego las búsquedas, con pausa entre cada una.",
     "docs": "https://www.reddit.com/prefs/apps",
-    "reddit_limit_per_minute": 100,
-    "fallback_without_token": "rss_con_pausa_10s"
+    "fallback_without_token": "rss_con_pausa_10s",
+    "replies": "PullPush trae num_comments directamente. En el respaldo RSS, las respuestas se cuentan leyendo el feed de comentarios (/comments/<id>/.rss), limitado a los top N por búsqueda (REDDIT_REPLIES_TOP_N)."
   },
 
   "endpoints_reference": {
@@ -19,7 +21,7 @@
   "response_range": {
     "results_per_query": 15,
     "selftext_chars": 2000,
-    "top_comments": 3
+    "replies_top_n": 5
   },
 
   "subreddits": {

@@ -41,6 +41,11 @@ def build_fallback_report(payload: dict[str, Any]) -> str:
                     f"  - Skills: {', '.join(it.get('skills', []) or []) or '—'} · "
                     f"Años: {it.get('years', []) or '—'} · Sueldo: {it.get('salary','') or '—'}"
                 )
+                if it.get("category") == "reddit":
+                    lines.append(
+                        f"  - Respuestas: {it.get('replies', 0) or 0}"
+                        f"{' (sí)' if it.get('has_replies') else ' (no)'}"
+                    )
     return "\n".join(lines) + "\n"
 
 

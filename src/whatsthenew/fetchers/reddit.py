@@ -1,14 +1,18 @@
 """Cliente de Reddit.
 
-Flujo (en orden):
-1. **Login**: `authenticate()` obtiene un token con el grant `client_credentials`
-   (solo app id + secret, nunca una contraseña de usuario).
-2. **Búsqueda**: `search()` usa el token y espera `delay` segundos entre consultas
-   (por defecto 10 s) para no ser bloqueado.
+Modo por defecto: **RSS**, sin credenciales (no requiere cuenta ni aprobación).
 
-Sin credenciales, cae automáticamente al modo **RSS** (con la misma pausa).
-Ningún endpoint está escrito en el código: todos vienen de la configuración
-(variables de entorno), porque el repositorio es público.
+- **Búsqueda**: `search()` lista los hilos de un subreddit (tema, fecha, url) y
+  espera `delay` segundos entre consultas.
+- **Respuestas**: `thread_replies()` mira el feed de comentarios de un hilo y
+  cuenta cuántas respuestas tiene.
+
+Opcional: si algún día se aprueba el acceso a la API, `authenticate()` hace el
+login OAuth `client_credentials` y `search()` usa el endpoint OAuth en vez del
+RSS. No es necesario para funcionar.
+
+Los endpoints no están escritos aquí: vienen de la configuración (variables de
+entorno), porque el repositorio es público.
 """
 
 from __future__ import annotations
@@ -39,6 +43,7 @@ class RedditClient:
         delay: float = 10.0,
         limit: int = 15,
         timeout: float = 25.0,
+        retries: int = 2,
         token_url: str = DEFAULT_REDDIT_TOKEN_URL,
         oauth_base: str = DEFAULT_REDDIT_OAUTH_BASE,
         www_base: str = DEFAULT_REDDIT_WWW_BASE,
@@ -49,6 +54,7 @@ class RedditClient:
         self.delay = delay
         self.limit = limit
         self.timeout = timeout
+        self.retries = max(retries, 0)
         self.token_url = token_url
         self.oauth_base = oauth_base
         self.www_base = www_base
@@ -57,7 +63,7 @@ class RedditClient:
         self._token_expiry: float = 0.0
 
     # ------------------------------------------------------------------ #
-    # Paso 1: LOGIN
+    # Login OAuth (opcional, solo si hay credenciales)
     # ------------------------------------------------------------------ #
     @property
     def has_credentials(self) -> bool:
@@ -105,7 +111,14 @@ class RedditClient:
         return self._token
 
     # ------------------------------------------------------------------ #
-    # Paso 2: BÚSQUEDA
+    # Ritmo entre peticiones
+    # ------------------------------------------------------------------ #
+    def _pace(self) -> None:
+        """Espera `delay` segundos. Corre semanal: tardar no es problema."""
+        time.sleep(self.delay)
+
+    # ------------------------------------------------------------------ #
+    # Búsqueda de hilos
     # ------------------------------------------------------------------ #
     def search(
         self,
@@ -126,8 +139,7 @@ class RedditClient:
                 else self._search_rss(sub, query, t, sort, limit)
             )
         finally:
-            # Pausa de 10 s entre búsquedas (aplica a ambos modos).
-            time.sleep(self.delay)
+            self._pace()
         return items
 
     def _search_oauth(self, sub: str, query: str, t: str, sort: str, limit: int, token: str) -> list[Item]:
@@ -168,7 +180,10 @@ class RedditClient:
     def _search_rss(self, sub: str, query: str, t: str, sort: str, limit: int) -> list[Item]:
         params = urlencode({"q": query, "restrict_sr": 1, "sort": sort, "t": t})
         url = f"{self.www_base}/r/{sub}/search.rss?{params}"
-        parsed = feedparser.parse(url, request_headers={"User-Agent": self.user_agent})
+        parsed = self._get_feed(url)
+        if parsed is None:
+            return []
+
         out: list[Item] = []
         for e in parsed.entries[:limit]:
             out.append(
@@ -184,3 +199,54 @@ class RedditClient:
                 )
             )
         return out
+
+    # ------------------------------------------------------------------ #
+    # Respuestas de un hilo
+    # ------------------------------------------------------------------ #
+    @staticmethod
+    def _comments_feed_url(permalink: str) -> str:
+        """Convierte el permalink de un hilo en la URL de su feed de comentarios."""
+        return f"{permalink.rstrip('/')}/.rss"
+
+    @staticmethod
+    def _reply_stats(parsed) -> tuple[int, bool]:
+        """Cuenta respuestas en un feed de comentarios.
+
+        La primera entrada suele ser el propio post, por eso se resta 1.
+        """
+        entries = getattr(parsed, "entries", None) or []
+        replies = max(len(entries) - 1, 0)
+        return replies, replies > 0
+
+    def thread_replies(self, permalink: str) -> tuple[int, bool]:
+        """Devuelve (número de respuestas, si tiene respuestas) de un hilo."""
+        if not permalink:
+            return 0, False
+        parsed = self._get_feed(self._comments_feed_url(permalink))
+        self._pace()
+        if parsed is None:
+            return 0, False
+        return self._reply_stats(parsed)
+
+    # ------------------------------------------------------------------ #
+    # Descarga de feeds con backoff ante 429
+    # ------------------------------------------------------------------ #
+    def _get_feed(self, url: str):
+        """Descarga un feed RSS con reintentos y espera creciente ante 429."""
+        attempts = self.retries + 1
+        for attempt in range(attempts):
+            parsed = feedparser.parse(url, request_headers={"User-Agent": self.user_agent})
+            status = int(getattr(parsed, "status", 200) or 200)
+            if status == 429:
+                wait = self.delay * (attempt + 1)
+                log.warning(
+                    "Reddit 429 (%s); reintento %d/%d en %.0f s", url, attempt + 1, attempts, wait
+                )
+                time.sleep(wait)
+                continue
+            if status >= 400:
+                log.warning("Reddit %s en %s", status, url)
+                return None
+            return parsed
+        log.warning("Reddit sigue en 429 tras %d intentos: %s", attempts, url)
+        return None

@@ -16,6 +16,7 @@ from .jobs import (
     fetch_seek_jobs,
 )
 from .news import fetch_rss
+from .pullpush import fetch_pullpush
 from .reddit import RedditClient
 from .roadmaps import fetch_devto, fetch_github_repo
 
@@ -29,6 +30,7 @@ __all__ = [
     "fetch_rss_jobs",
     "fetch_hackernews_whoishiring",
     "fetch_rss",
+    "fetch_pullpush",
     "fetch_devto",
     "fetch_github_repo",
 ]

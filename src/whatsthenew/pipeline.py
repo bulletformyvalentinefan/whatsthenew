@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+from typing import Any
 
 from . import fetchers as F
 from .analyze import run_analysis
@@ -30,6 +31,66 @@ def _safe(fn, *args, **kwargs) -> list[Item]:
     except Exception as exc:  # noqa: BLE001
         log.warning("FALLO %s: %s", getattr(fn, "__name__", fn), exc)
         return []
+
+
+def enrich_reddit_replies(reddit: F.RedditClient, items: list[Item], top_n: int) -> None:
+    """Consulta el nº de respuestas de los top N hilos por (subreddit, consulta).
+
+    Es 1 petición extra por hilo; se limita a los primeros N de cada búsqueda
+    para no disparar el nº de llamadas. Corre semanal: tardar no importa.
+    """
+    if top_n <= 0:
+        return
+    seen: dict[tuple[str, str], int] = {}
+    for it in items:
+        key = (it.source, it.query)
+        if seen.get(key, 0) >= top_n:
+            continue
+        seen[key] = seen.get(key, 0) + 1
+        try:
+            it.replies, it.has_replies = reddit.thread_replies(it.url)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("Reddit respuestas (%s): %s", it.url, exc)
+
+
+def collect_reddit(
+    settings: Settings, reddit: F.RedditClient, client: F.HttpClient, rcfg: dict[str, Any]
+) -> list[Item]:
+    """Reddit sin login.
+
+    1) **PullPush** (espejo público): en 1 petición da tema, fecha y nº de
+       respuestas. Es el camino principal.
+    2) **RSS de Reddit** de respaldo (con conteo de respuestas por hilo) para
+       cuando PullPush no devuelve nada.
+    """
+    subs = rcfg["subreddits"]["role"][:4]
+    queries = REDDIT_QUERIES[:2]
+
+    if settings.pullpush_url:
+        pull: list[Item] = []
+        for sub in subs:
+            for q in queries:
+                pull += _safe(
+                    F.fetch_pullpush, client, settings.pullpush_url, sub, q, settings.reddit_limit
+                )
+        if pull:
+            log.info("Reddit: %d items vía PullPush (sin login).", len(pull))
+            return pull
+        log.warning("Reddit: PullPush sin resultados; se prueba el RSS de Reddit.")
+
+    # Respaldo: RSS de Reddit + conteo de respuestas (login OAuth opcional).
+    if reddit.authenticate():
+        log.info("Reddit: autenticado por OAuth.")
+    else:
+        log.info("Reddit: modo RSS (sin credenciales), pausa de %.0f s.", reddit.delay)
+
+    rss_items: list[Item] = []
+    for sub in subs:
+        for q in queries:
+            rss_items += _safe(reddit.search, sub, q, "month", "top")
+
+    enrich_reddit_replies(reddit, rss_items, settings.reddit_replies_top_n)
+    return rss_items
 
 
 def collect(settings: Settings, client: F.HttpClient, reddit: F.RedditClient) -> list[Item]:
@@ -83,16 +144,8 @@ def collect(settings: Settings, client: F.HttpClient, reddit: F.RedditClient) ->
         elif s["id"] == "roadmapsh":
             items += _safe(F.fetch_github_repo, client, s["repo"], s.get("branch", "master"), settings.github_api_base)
 
-    # --- Reddit: PRIMERO el login, DESPUÉS las búsquedas (cada `reddit_delay` s) ---
-    if reddit.authenticate():
-        log.info("Reddit: autenticado por OAuth.")
-    else:
-        log.info("Reddit: sin credenciales, modo RSS con pausa de %.0f s.", reddit.delay)
-
-    subs = rcfg["subreddits"]
-    for sub in subs["role"][:4]:
-        for q in REDDIT_QUERIES[:2]:
-            items += _safe(reddit.search, sub, q, "month", "top")
+    # --- Reddit (sin login) ---
+    items += collect_reddit(settings, reddit, client, rcfg)
 
     return items
 
@@ -108,6 +161,7 @@ def run(settings: Settings) -> int:
             delay=settings.reddit_delay,
             limit=settings.reddit_limit,
             timeout=settings.reddit_timeout,
+            retries=settings.reddit_retries,
             token_url=settings.reddit_token_url,
             oauth_base=settings.reddit_oauth_base,
             www_base=settings.reddit_www_base,

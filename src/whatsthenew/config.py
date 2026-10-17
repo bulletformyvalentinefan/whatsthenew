@@ -33,6 +33,11 @@ DEFAULT_REDDIT_TOKEN_URL = "https://www.reddit.com/api/v1/access_token"
 DEFAULT_REDDIT_OAUTH_BASE = "https://oauth.reddit.com"
 DEFAULT_REDDIT_WWW_BASE = "https://www.reddit.com"
 DEFAULT_GITHUB_API_BASE = "https://api.github.com"
+# Reddit sin login (espejo público). Trae tema, fecha y nº de respuestas.
+DEFAULT_PULLPUSH_URL = (
+    "https://api.pullpush.io/reddit/search/submission/"
+    "?subreddit={subreddit}&q={query}&size={size}&sort=desc"
+)
 
 
 def _load_json(name: str) -> dict[str, Any]:
@@ -57,6 +62,8 @@ class Settings:
     reddit_delay: float
     reddit_limit: int
     reddit_timeout: float
+    reddit_retries: int
+    reddit_replies_top_n: int
     user_agent: str
 
     # --- OpenCode ---
@@ -72,6 +79,7 @@ class Settings:
     reddit_token_url: str
     reddit_oauth_base: str
     reddit_www_base: str
+    pullpush_url: str
     github_api_base: str
 
     # --- Notificación ---
@@ -88,6 +96,8 @@ class Settings:
             reddit_delay=float(os.getenv("REDDIT_DELAY_SECONDS", "10")),
             reddit_limit=int(os.getenv("REDDIT_LIMIT", "15")),
             reddit_timeout=float(os.getenv("REDDIT_TIMEOUT_SECONDS", "25")),
+            reddit_retries=int(os.getenv("REDDIT_RETRIES", "2")),
+            reddit_replies_top_n=int(os.getenv("REDDIT_REPLIES_TOP_N", "5")),
             user_agent=os.getenv("USER_AGENT", DEFAULT_USER_AGENT),
             opencode_bin=os.getenv("OPENCODE_BIN", "opencode"),
             opencode_agent=os.getenv("OPENCODE_AGENT", "plan-updater"),
@@ -97,6 +107,7 @@ class Settings:
             reddit_token_url=os.getenv("REDDIT_TOKEN_URL", DEFAULT_REDDIT_TOKEN_URL),
             reddit_oauth_base=os.getenv("REDDIT_OAUTH_BASE", DEFAULT_REDDIT_OAUTH_BASE),
             reddit_www_base=os.getenv("REDDIT_WWW_BASE", DEFAULT_REDDIT_WWW_BASE),
+            pullpush_url=os.getenv("PULLPUSH_URL", DEFAULT_PULLPUSH_URL),
             github_api_base=os.getenv("GITHUB_API_BASE", DEFAULT_GITHUB_API_BASE),
             discord_webhook=os.getenv("DISCORD_WEBHOOK", ""),
         )
