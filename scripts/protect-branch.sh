@@ -66,4 +66,4 @@ else
 fi
 
 echo "OK. Reglas activas:"
-gh api "repos/$REPO/rulesets" --jq '.[] | "  - \(.name) [\(.enforcement)] -> \(.conditions.ref_name.include | join(", "))"'
+gh api "repos/$REPO/rulesets" --jq '.[] | "  - \(.name) [\(.enforcement)] -> \(.conditions.ref_name.include // ["(ver detalle)"] | join(", "))"' || true
