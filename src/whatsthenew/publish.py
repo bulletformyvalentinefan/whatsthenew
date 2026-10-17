@@ -10,10 +10,14 @@ Flujo (contenedor efímero, sin login interactivo):
 
 El merge lo decide una persona: el pipeline nunca fusiona ni toca `main`.
 Regla del proyecto: **propone, no impone**.
+
+El token se inyecta por cabecera HTTP en cada operación (`http.extraheader`), así
+NUNCA queda guardado en `.git/config` ni en la URL del remoto.
 """
 
 from __future__ import annotations
 
+import base64
 import logging
 import os
 import subprocess
@@ -93,18 +97,23 @@ def render_pr_body(branch: str, count: int, generated_at: str, report_relpath: s
 # ---------------------------------------------------------------------------
 # Git (subprocess)
 # ---------------------------------------------------------------------------
-def _auth_url(settings: Settings) -> str:
-    tok = settings.plan_repo_token
-    return f"https://x-access-token:{tok}@github.com/{settings.plan_repo}.git"
-
-
 def _clean_url(settings: Settings) -> str:
     return f"{settings.github_web}/{settings.plan_repo}.git"
 
 
-def _git(settings: Settings, args: list[str], cwd: Path) -> subprocess.CompletedProcess:
+def _basic_header(token: str) -> str:
+    raw = base64.b64encode(f"x-access-token:{token}".encode()).decode()
+    return f"Authorization: Basic {raw}"
+
+
+def _git(settings: Settings, args: list[str], cwd: Path, auth: bool = False) -> subprocess.CompletedProcess:
+    cmd = ["git"]
+    if auth and settings.plan_repo_token:
+        # El token viaja solo en esta invocación; no se persiste en .git/config.
+        cmd += ["-c", f"http.https://github.com/.extraheader={_basic_header(settings.plan_repo_token)}"]
+    cmd += args
     proc = subprocess.run(
-        ["git", *args],
+        cmd,
         cwd=str(cwd),
         capture_output=True,
         text=True,
@@ -122,10 +131,8 @@ def ensure_plan_clone(settings: Settings) -> Path:
     dest = settings.plan_dir
     if not (dest / ".git").is_dir():
         dest.parent.mkdir(parents=True, exist_ok=True)
-        _git(settings, ["clone", _auth_url(settings), str(dest)], cwd=dest.parent)
-    # En ambos casos dejamos el remoto sin token, traemos y nos situamos en la rama.
-    _git(settings, ["remote", "set-url", "origin", _clean_url(settings)], cwd=dest)
-    _git(settings, ["fetch", "--prune", "origin"], cwd=dest)
+        _git(settings, ["clone", _clean_url(settings), str(dest)], cwd=dest.parent, auth=True)
+    _git(settings, ["fetch", "--prune", "origin"], cwd=dest, auth=True)
     _git(
         settings,
         ["checkout", "-B", settings.plan_repo_branch, f"origin/{settings.plan_repo_branch}"],
@@ -151,11 +158,7 @@ def _commit_and_push(settings: Settings, branch: str, message: str) -> bool:
         ],
         cwd=dest,
     )
-    _git(settings, ["remote", "set-url", "origin", _auth_url(settings)], cwd=dest)
-    try:
-        _git(settings, ["push", "--force", "--set-upstream", "origin", branch], cwd=dest)
-    finally:
-        _git(settings, ["remote", "set-url", "origin", _clean_url(settings)], cwd=dest)
+    _git(settings, ["push", "--force", "--set-upstream", "origin", branch], cwd=dest, auth=True)
     return True
 
 
