@@ -1,27 +1,35 @@
-# Configurar las credenciales de Reddit
+# Reddit — sin credenciales (y credenciales opcionales)
 
-Reddit es la fuente más fuerte del proyecto, así que conviene usar su **API oficial** (no scraping).
-Con una app OAuth gratuita se obtienen **100 peticiones/minuto** y se evita el `429` que aparece en
-las consultas sin token.
+Reddit es la fuente más fuerte del proyecto. **No hace falta cuenta, app ni aprobación**:
+el pipeline obtiene lo que necesitamos (tema, fecha y **nº de respuestas** de cada hilo) sin login.
 
-> Las credenciales viven **solo** en `.env`, que está protegido por `.gitignore`. Nunca se versionan.
+## Cómo funciona (en orden)
 
-## 1. Crear la app
+1. **PullPush** (espejo público de Reddit) — camino principal.
+   En **una sola petición** por `(subreddit, consulta)` devuelve `title`, `created_utc` y
+   `num_comments`. Endpoint configurable con `PULLPUSH_URL`.
+2. **RSS de Reddit** — respaldo si PullPush no responde.
+   Baja la búsqueda (`.rss`) y, para los **top N** hilos por búsqueda (`REDDIT_REPLIES_TOP_N`),
+   lee el feed de comentarios del hilo (`/comments/<id>/.rss`) para contar respuestas.
+3. **OAuth** — opcional, solo si algún día hay credenciales.
 
-1. Inicia sesión en Reddit y entra a <https://www.reddit.com/prefs/apps>.
-2. Pulsa **"create another app..."**.
-3. Completa:
-   - **name**: `whatsthenew` (o el que prefieras)
-   - **type**: **script**
-   - **redirect uri**: `http://localhost:8080` (no se usa con `client_credentials`, pero es obligatorio)
-4. Guarda con **"create app"**.
+Si una fuente devuelve `429`, el cliente reintenta con espera creciente (`REDDIT_RETRIES`).
 
-## 2. Copiar las credenciales
+## ¿Por qué no uso la API oficial por defecto?
 
-En la tarjeta de tu app verás:
+La **Responsible Builder Policy** de Reddit (oct-2026) exige **aprobación previa** para usar su
+API. Además, sin token, Reddit bloquea con `403`/`429` los feeds desde muchas IPs. Por eso el
+camino por defecto es **PullPush**, que no requiere login.
 
-- **client_id**: la cadena corta **justo debajo** del nombre de la app.
-- **secret**: el campo marcado como *secret*.
+## Credenciales (opcionales)
+
+> Solo si algún día consigues acceso aprobado a la API. Viven **solo** en `.env`, protegido por
+> `.gitignore`. Nunca se versionan.
+
+1. Crea una app en <https://www.reddit.com/prefs/apps> (tipo **script**,
+   redirect uri `http://localhost:8080`).
+2. Copia `client_id` (bajo el nombre) y `secret`.
+3. Rellena en `.env`:
 
 ```text
 REDDIT_CLIENT_ID=tu_client_id
@@ -29,36 +37,21 @@ REDDIT_CLIENT_SECRET=tu_secret
 USER_AGENT=whatsthenew/0.1 (market watcher by tu_usuario_reddit)
 ```
 
-## 3. Escribirlas en `.env`
-
-```bash
-cp .env.example .env   # si aún no existe
-chmod 600 .env         # solo tu usuario puede leerlo
-# edita .env y rellena las 3 variables
-```
-
-Verifica que `.env` **no** se sube a git:
-
-```bash
-git check-ignore -v .env   # debe responder .gitignore:...:.env
-git status --short         # .env NO debe aparecer
-```
-
-## 4. Probar que funciona
-
-```bash
-python -m whatsthenew run
-```
-
-Si el token es válido, en los logs no verás `429` en las consultas de Reddit. Sin token, el cliente
-cae automáticamente al modo RSS con pausas de 10 s.
+Con credenciales, el cliente hace **login primero** (`client_credentials`) y luego las búsquedas,
+una cada `REDDIT_DELAY_SECONDS` (10 s por defecto).
 
 ## Seguridad
 
 | Archivo | ¿Se versiona? | Contenido |
 |---|---|---|
-| `.env` | ❌ No (ignorado) | Credenciales reales |
+| `.env` | ❌ No (ignorado) | Credenciales reales (si las hay) |
 | `.env.example` | ✅ Sí | Plantilla vacía, sin secretos |
 
-Si alguna vez una credencial se filtra, revócala en <https://www.reddit.com/prefs/apps> y genera una
-nueva. Rotar es más barato que limpiar un secreto del historial de git.
+`./scripts/check-secrets.sh` (y el paso de CI) falla si un secreto llega al repositorio.
+
+Verifica que `.env` no se sube:
+
+```bash
+git check-ignore -v .env   # debe responder .gitignore:...:.env
+git status --short         # .env NO debe aparecer
+```

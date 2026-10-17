@@ -9,7 +9,7 @@ publicó. Esto hace el reporte **trazable**.
 |---|---|---|
 | `category` | str | `jobs` \| `news` \| `company_blog` \| `reddit` \| `roadmap` |
 | `source` | str | Dominio o id de la fuente (ej: `seek.com.au`) |
-| `source_type` | str | `api` \| `rss` \| `html` \| `xml` \| `reddit` |
+| `source_type` | str | `api` \| `rss` \| `html` \| `xml` \| `reddit` \| `pullpush` |
 | `url` | str | Enlace directo al dato |
 | `title` | str | Título del aviso/post |
 | `company` | str | Empresa (si aplica) |
@@ -24,6 +24,8 @@ publicó. Esto hace el reporte **trazable**.
 | `posted_at` | str | Fecha de publicación del dato |
 | `fetched_at` | str | **Fecha de consulta** (dd/mm/aaaa hh:mm, zona local) |
 | `query` | str | Consulta usada para obtenerlo |
+| `replies` | int | Nº de respuestas del hilo (Reddit) |
+| `has_replies` | bool | Si el hilo tiene respuestas (Reddit) |
 | `excerpt` | str | Primeros ~2000 caracteres del texto |
 
 ## JSON crudo (temporal)

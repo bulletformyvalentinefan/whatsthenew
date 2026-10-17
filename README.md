@@ -49,7 +49,7 @@ whatsthenew/
 - Python 3.11+
 - Docker (opcional, para el contenedor efímero)
 - OpenCode instalado (`opencode run ...`)
-- (Opcional) App OAuth gratuita de Reddit para leer Reddit de forma fiable
+- **Nada más**: Reddit funciona sin credenciales (PullPush + RSS). La app OAuth es opcional.
 
 ---
 
@@ -78,7 +78,7 @@ docker compose -f docker/docker-compose.yml run --rm whatsthenew
 
 ## Automatización
 
-El contenedor es **efímero**: se enciende cada 3 días por cron, hace su trabajo y se apaga.
+El contenedor es **efímero**: se enciende **cada semana** por cron, hace su trabajo y se apaga.
 Entre ejecuciones **no consume RAM**. Ver `scripts/cron.example`.
 
 ---
@@ -90,7 +90,7 @@ Entre ejecuciones **no consume RAM**. Ver `scripts/cron.example`.
 - [`docs/DATA-SCHEMA.md`](docs/DATA-SCHEMA.md) — el esquema de cada dato (con fuente y fecha)
 - [`docs/OPENCODE.md`](docs/OPENCODE.md) — cómo se conecta OpenCode para ordenar los datos
 - [`docs/BRANCH-PROTECTION.md`](docs/BRANCH-PROTECTION.md) — protección de la rama `main`
-- [`docs/REDDIT-SETUP.md`](docs/REDDIT-SETUP.md) — credenciales de Reddit en `.env`
+- [`docs/REDDIT-SETUP.md`](docs/REDDIT-SETUP.md) — Reddit sin login (PullPush/RSS) y credenciales opcionales
 
 ---
 

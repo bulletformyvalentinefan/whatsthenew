@@ -51,4 +51,8 @@ roadmap.sh (repo `nilbuild/developer-roadmap`), dev.to API, GitHub Trending.
 - Feed/API primero; respetar `robots.txt`; User-Agent honesto con contacto.
 - Pausa 4 s (10 s Reddit). GitHub sin token: 60 req/h.
 - **No automatizar:** LinkedIn, Indeed, Computrabajo-API, `devops.com` (403).
-- Reddit: usar **app OAuth** (100 req/min). `.json` sin token da 403; `.rss` da 429 en ráfaga.
+- Reddit — **sin login**:
+  - **PullPush** (`api.pullpush.io/reddit/search/submission/`): camino principal; trae tema, fecha
+    y `num_comments` en una petición. No requiere cuenta.
+  - **RSS** (`.rss`): respaldo; el feed de comentarios (`/comments/<id>/.rss`) da el nº de respuestas.
+  - **API oficial**: opcional y sujeta a **aprobación** (Responsible Builder Policy, oct-2026).
