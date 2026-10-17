@@ -1,4 +1,4 @@
-.PHONY: help install run test lint clean docker-build docker-run
+.PHONY: help install run test lint secrets clean docker-build docker-run
 
 help: ## Muestra esta ayuda
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -14,6 +14,9 @@ test: ## Corre las pruebas
 
 lint: ## Revisa el estilo (opcional, si tienes ruff)
 	ruff check src tests || true
+
+secrets: ## Verifica que no haya secretos versionados
+	./scripts/check-secrets.sh
 
 clean: ## Borra temporales y cachés
 	rm -f /tmp/whatsthenew_raw.json

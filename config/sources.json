@@ -3,9 +3,11 @@
   "comment": "Catálogo de fuentes verificadas. Regla: feed/API primero, HTML solo si no hay otra opción.",
   "defaults": {
     "http_delay_seconds": 4,
+    "http_timeout_seconds": 25,
     "reddit_delay_seconds": 10,
-    "user_agent": "whatsthenew/0.1 (+https://github.com/bulletformyvalentinefan/whatsthenew)",
-    "timeout_seconds": 25
+    "reddit_limit": 15,
+    "user_agent": "whatsthenew/0.1 (market watcher)",
+    "note": "Estos valores son solo documentacion; el codigo lee las variables de entorno (.env)."
   },
 
   "jobs_global": [
@@ -25,6 +27,7 @@
       "market": "australia",
       "enabled": true,
       "url": "https://www.seek.com.au/api/jobsearch/v5/search?keywords={query}&page={page}",
+      "web_base": "https://www.seek.com.au/job",
       "notes": "La web da 403; su API interna devuelve JSON. Usar con moderación.",
       "fields": ["title", "companyName", "listingDate", "jobId"]
     },
@@ -89,6 +92,7 @@
       "market": "global",
       "enabled": true,
       "url": "https://hn.algolia.com/api/v1/search?query={query}&tags=comment&hitsPerPage=50",
+      "web_base": "https://news.ycombinator.com/item",
       "fields": ["comment_text", "created_at", "story_id"]
     },
     {

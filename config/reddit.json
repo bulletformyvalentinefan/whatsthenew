@@ -1,21 +1,19 @@
 {
   "version": 1,
   "comment": "Búsquedas de Reddit. Reddit es la fuente más fuerte: se arma con cuidado.",
+  "env_note": "Los endpoints, el user-agent, el ritmo y las credenciales se leen de variables de entorno (REDDIT_*, USER_AGENT). Lo de abajo es referencia pública, no secreto.",
   "auth": {
     "mode": "oauth_client_credentials",
+    "login_first": "Primero se hace login (authenticate) y luego las búsquedas, con pausa entre cada una.",
     "docs": "https://www.reddit.com/prefs/apps",
     "reddit_limit_per_minute": 100,
     "fallback_without_token": "rss_con_pausa_10s"
   },
 
-  "endpoints": {
-    "rss_sub": "https://www.reddit.com/r/{sub}/.rss",
-    "rss_search": "https://www.reddit.com/r/{sub}/search.rss?q={q}&restrict_sr=1&sort={sort}&t={t}",
-    "rss_search_global": "https://www.reddit.com/search.rss?q={q}&sort={sort}&t={t}",
-    "rss_comments": "https://www.reddit.com/r/{sub}/comments/{id}/.rss",
-    "oauth_token": "https://www.reddit.com/api/v1/access_token",
-    "oauth_search": "https://oauth.reddit.com/r/{sub}/search?q={q}&restrict_sr=1&sort={sort}&t={t}&limit={limit}",
-    "pullpush_backup": "https://api.pullpush.io/reddit/search/submission/?subreddit={sub}&q={q}&size={size}"
+  "endpoints_reference": {
+    "token": "REDDIT_TOKEN_URL",
+    "oauth_base": "REDDIT_OAUTH_BASE",
+    "www_base": "REDDIT_WWW_BASE"
   },
 
   "response_range": {

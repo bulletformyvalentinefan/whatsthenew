@@ -26,7 +26,7 @@ En la tarjeta de tu app verás:
 ```text
 REDDIT_CLIENT_ID=tu_client_id
 REDDIT_CLIENT_SECRET=tu_secret
-REDDIT_USER_AGENT=whatsthenew/0.1 by tu_usuario_reddit
+USER_AGENT=whatsthenew/0.1 (market watcher by tu_usuario_reddit)
 ```
 
 ## 3. Escribirlas en `.env`

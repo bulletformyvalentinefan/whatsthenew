@@ -7,13 +7,13 @@ Cada Item lleva SIEMPRE de dónde salió (source/url) y cuándo se consultó
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
-from typing import Any, Optional
+from datetime import UTC, datetime
+from typing import Any
 
 
 def now_local_iso() -> str:
     """Fecha de consulta con zona local, formato ISO (para trazabilidad)."""
-    return datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
+    return datetime.now(UTC).astimezone().isoformat(timespec="seconds")
 
 
 @dataclass
@@ -25,7 +25,7 @@ class Item:
     title: str = ""
     company: str = ""
     location: str = ""
-    remote: Optional[bool] = None
+    remote: bool | None = None
     role: str = ""
     level: str = ""
     years: list[int] = field(default_factory=list)

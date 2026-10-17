@@ -32,7 +32,7 @@ def _safe(fn, *args, **kwargs) -> list[Item]:
         return []
 
 
-def collect(settings: Settings, client: "F.HttpClient", reddit: "F.RedditClient") -> list[Item]:
+def collect(settings: Settings, client: F.HttpClient, reddit: F.RedditClient) -> list[Item]:
     sources = load_sources()
     roles = load_roles()
     F.jobs.STACK = roles["stack"]
@@ -47,11 +47,11 @@ def collect(settings: Settings, client: "F.HttpClient", reddit: "F.RedditClient"
         if sid == "weworkremotely":
             items += _safe(F.fetch_rss_jobs, client, s["url"], "weworkremotely.com")
         elif sid == "seek":
-            items += _safe(F.fetch_seek_jobs, client, s["url"], ROLE_QUERIES[:2], 1)
+            items += _safe(F.fetch_seek_jobs, client, s["url"], ROLE_QUERIES[:2], 1, s.get("web_base", ""))
         elif sid == "jobicy":
             items += _safe(F.fetch_jobicy, client, s["url"], JOBICY_TAGS[:3])
         elif sid == "hackernews":
-            items += _safe(F.fetch_hackernews_whoishiring, client, s["url"], "who is hiring")
+            items += _safe(F.fetch_hackernews_whoishiring, client, s["url"], "who is hiring", s.get("web_base", ""))
         elif sid in {"remotive", "remoteok", "workingnomads", "himalayas", "landingjobs"}:
             items += _safe(F.fetch_json_board, client, sid, s["url"])
 
@@ -81,27 +81,36 @@ def collect(settings: Settings, client: "F.HttpClient", reddit: "F.RedditClient"
         if s["id"] == "devto":
             items += _safe(F.fetch_devto, client, s["url"])
         elif s["id"] == "roadmapsh":
-            items += _safe(F.fetch_github_repo, client, s["repo"], s.get("branch", "master"))
+            items += _safe(F.fetch_github_repo, client, s["repo"], s.get("branch", "master"), settings.github_api_base)
 
-    # --- Reddit ---
+    # --- Reddit: PRIMERO el login, DESPUÉS las búsquedas (cada `reddit_delay` s) ---
+    if reddit.authenticate():
+        log.info("Reddit: autenticado por OAuth.")
+    else:
+        log.info("Reddit: sin credenciales, modo RSS con pausa de %.0f s.", reddit.delay)
+
     subs = rcfg["subreddits"]
     for sub in subs["role"][:4]:
         for q in REDDIT_QUERIES[:2]:
-            items += _safe(reddit.search, sub, q, "month", "top", 10)
+            items += _safe(reddit.search, sub, q, "month", "top")
 
     return items
 
 
 def run(settings: Settings) -> int:
-    sources = load_sources()
-    defaults = sources["defaults"]
-
-    with F.HttpClient(settings.user_agent, delay=settings.http_delay) as client:
+    with F.HttpClient(
+        settings.user_agent, delay=settings.http_delay, timeout=settings.http_timeout
+    ) as client:
         reddit = F.RedditClient(
             user_agent=settings.user_agent,
             client_id=settings.reddit_client_id,
             client_secret=settings.reddit_client_secret,
             delay=settings.reddit_delay,
+            limit=settings.reddit_limit,
+            timeout=settings.reddit_timeout,
+            token_url=settings.reddit_token_url,
+            oauth_base=settings.reddit_oauth_base,
+            www_base=settings.reddit_www_base,
         )
         items = collect(settings, client, reddit)
 
@@ -110,7 +119,8 @@ def run(settings: Settings) -> int:
         "count": len(items),
         "roles_file": "config/roles.json",
         "sources_file": "config/sources.json",
-        "user_agent": defaults["user_agent"],
+        "user_agent": settings.user_agent,
+        "reddit_auth": "oauth" if reddit.has_credentials else "rss",
     }
     payload = items_to_payload(items, meta)
     settings.tmp_raw.parent.mkdir(parents=True, exist_ok=True)

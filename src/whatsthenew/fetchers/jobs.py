@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import xml.etree.ElementTree as ET
-from typing import Any
 
 import feedparser
 
@@ -21,32 +20,34 @@ def _classify(title: str, text: str = "", location: str = "") -> dict:
 # --------------------------------------------------------------------------
 # GetOnBrd (Chile / LATAM) — feed XML con <job>
 # --------------------------------------------------------------------------
+def _xml_text(el: ET.Element, tag: str) -> str:
+    """Devuelve el texto de un subelemento, o "" si no existe."""
+    found = el.find(tag)
+    return (found.text or "").strip() if found is not None and found.text else ""
+
+
 def fetch_getonbrd(client: HttpClient, url: str) -> list[Item]:
     text = client.get_text(url)
     root = ET.fromstring(text)
     items: list[Item] = []
     for job in root.iter("job"):
-        def _t(tag: str) -> str:
-            el = job.find(tag)
-            return (el.text or "").strip() if el is not None and el.text else ""
-
-        title = _t("title")
-        desc = _t("description")
-        location = _t("location")
-        tags = _classify(title, f"{desc} {_t('category')}", location)
+        title = _xml_text(job, "title")
+        desc = _xml_text(job, "description")
+        location = _xml_text(job, "location")
+        tags = _classify(title, f"{desc} {_xml_text(job, 'category')}", location)
         items.append(
             Item(
                 category="jobs",
                 source="getonbrd.com",
                 source_type="xml",
-                url=_t("url"),
+                url=_xml_text(job, "url"),
                 title=title,
-                company=_t("company"),
+                company=_xml_text(job, "company"),
                 location=location,
-                posted_at=_t("date"),
+                posted_at=_xml_text(job, "date"),
                 salary="",
                 excerpt=desc[:2000],
-                role=_t("category"),
+                role=_xml_text(job, "category"),
                 **tags,
             )
         )
@@ -56,8 +57,15 @@ def fetch_getonbrd(client: HttpClient, url: str) -> list[Item]:
 # --------------------------------------------------------------------------
 # Seek (Australia) — API interna JSON
 # --------------------------------------------------------------------------
-def fetch_seek_jobs(client: HttpClient, url_template: str, queries: list[str], pages: int = 1) -> list[Item]:
+def fetch_seek_jobs(
+    client: HttpClient,
+    url_template: str,
+    queries: list[str],
+    pages: int = 1,
+    job_url_base: str = "",
+) -> list[Item]:
     items: list[Item] = []
+    base = job_url_base.rstrip("/")
     for query in queries:
         for page in range(1, pages + 1):
             url = url_template.format(query=query.replace(" ", "%20"), page=page)
@@ -72,7 +80,7 @@ def fetch_seek_jobs(client: HttpClient, url_template: str, queries: list[str], p
                         category="jobs",
                         source="seek.com.au",
                         source_type="api",
-                        url=f"https://www.seek.com.au/job/{job.get('id', '')}",
+                        url=f"{base}/{job.get('id', '')}" if base else "",
                         title=title,
                         company=company,
                         location=loc,
@@ -199,9 +207,15 @@ def fetch_rss_jobs(client: HttpClient, url: str, source: str) -> list[Item]:
 # --------------------------------------------------------------------------
 # Hacker News "Who is hiring" (Algolia)
 # --------------------------------------------------------------------------
-def fetch_hackernews_whoishiring(client: HttpClient, url_template: str, query: str) -> list[Item]:
+def fetch_hackernews_whoishiring(
+    client: HttpClient,
+    url_template: str,
+    query: str,
+    item_url_base: str = "",
+) -> list[Item]:
     data = client.get_json(url_template.format(query=query.replace(" ", "%20")))
     items: list[Item] = []
+    base = item_url_base.rstrip("/")
     for hit in data.get("hits", []):
         text: str = hit.get("comment_text", "") or ""
         title = text.strip().splitlines()[0][:120] if text.strip() else "(comentario)"
@@ -211,7 +225,7 @@ def fetch_hackernews_whoishiring(client: HttpClient, url_template: str, query: s
                 category="jobs",
                 source="news.ycombinator.com",
                 source_type="api",
-                url=f"https://news.ycombinator.com/item?id={hit.get('objectID', '')}",
+                url=f"{base}?id={hit.get('objectID', '')}" if base else "",
                 title=title,
                 posted_at=str(hit.get("created_at", "")),
                 query=query,

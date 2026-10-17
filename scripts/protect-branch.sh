@@ -12,10 +12,13 @@ cd "$(dirname "$0")/.."
 
 REPO="${1:-}"
 if [ -z "$REPO" ]; then
-  if git remote get-url origin >/dev/null 2>&1; then
+  if [ -n "${GITHUB_REPO:-}" ]; then
+    REPO="$GITHUB_REPO"
+  elif git remote get-url origin >/dev/null 2>&1; then
     REPO="$(git remote get-url origin | sed -E 's#(git@github.com:|https://github.com/)##; s#\.git$##')"
   else
-    REPO="bulletformyvalentinefan/whatsthenew"
+    echo "No pude determinar el repositorio. Pasa owner/repo o define GITHUB_REPO." >&2
+    exit 1
   fi
 fi
 

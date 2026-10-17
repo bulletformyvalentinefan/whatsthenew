@@ -22,9 +22,13 @@ def fetch_devto(client: HttpClient, url: str) -> list[Item]:
     return items
 
 
-def fetch_github_repo(client: HttpClient, repo: str, branch: str = "master") -> list[Item]:
-    """Lista el contenido de un repositorio (roadmap.sh) sin clonar."""
-    url = f"https://api.github.com/repos/{repo}/contents/roadmaps?ref={branch}"
+def fetch_github_repo(client: HttpClient, repo: str, branch: str = "master", api_base: str = "") -> list[Item]:
+    """Lista el contenido de un repositorio (roadmap.sh) sin clonar.
+
+    `api_base` se inyecta desde la configuración (no se escribe aquí).
+    """
+    base = api_base.rstrip("/")
+    url = f"{base}/repos/{repo}/contents/roadmaps?ref={branch}"
     data = client.get_json(url)
     items: list[Item] = []
     for entry in data:

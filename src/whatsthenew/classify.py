@@ -6,7 +6,7 @@ Regla del proyecto: NO se excluye ningún rol ni nivel. Aquí solo se etiqueta.
 from __future__ import annotations
 
 import re
-from typing import Iterable
+from collections.abc import Iterable
 
 _LEVEL_PATTERNS: list[tuple[str, str]] = [
     ("principal", r"\bprincipal\b"),

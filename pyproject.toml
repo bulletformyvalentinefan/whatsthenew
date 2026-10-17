@@ -1,0 +1,17 @@
+# Configuración de herramientas del proyecto.
+# Nota: esto NO convierte al proyecto en un paquete instalable; se ejecuta con
+# `PYTHONPATH=src python -m whatsthenew`. Aquí solo viven las reglas de lint/test.
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = [
+    "E501", # longitud de línea: la vigila el formatter, no debe romper CI
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
