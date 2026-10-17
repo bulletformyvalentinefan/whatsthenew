@@ -9,9 +9,10 @@ from typing import Any
 from . import fetchers as F
 from .analyze import run_analysis
 from .classify import classify  # noqa: F401  (reexport para uso externo)
-from .cleanup import purge_tmp
+from .cleanup import purge_extra, purge_tmp
 from .config import Settings, load_reddit, load_roles, load_sources
 from .models import Item, items_to_payload, now_local_iso
+from .publish import ensure_plan_clone, push_proposal
 from .report import build_fallback_report, write_report
 
 log = logging.getLogger("whatsthenew")
@@ -184,14 +185,37 @@ def run(settings: Settings) -> int:
     # Respaldo determinista SIEMPRE (por si la IA falla).
     write_report(build_fallback_report(payload), settings.output_file)
 
-    # Análisis con IA (sobrescribe el archivo si tiene éxito).
+    # Plan de carrera: si vamos a publicar, se clona el repositorio PRIVADO del plan.
+    # El clon es efímero: vive en PLAN_DIR y se borra al terminar.
+    plan_path = settings.plan_file
+    if settings.publish_proposal:
+        try:
+            plan_path = ensure_plan_clone(settings)
+            log.info("Repo del plan listo en %s", plan_path)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("No se pudo clonar el repo del plan (%s); uso %s", exc, plan_path)
+
+    # Análisis con IA (sobrescribe el reporte si tiene éxito y escribe el plan propuesto).
     try:
-        result = run_analysis(settings)
+        result = run_analysis(settings, plan_path)
         log.info("OpenCode rc=%s ok=%s", result.returncode, result.ok)
     except Exception as exc:  # noqa: BLE001
         log.warning("Análisis IA no disponible (%s). Se deja el respaldo.", exc)
 
-    # Purga de datos efímeros.
+    # Publicar la propuesta como PR en el repo privado (nunca fusiona solo).
+    if settings.publish_proposal:
+        proposed = settings.proposed_plan_file
+        if proposed.exists():
+            report_text = settings.output_file.read_text(encoding="utf-8")
+            res = push_proposal(settings, proposed.read_text(encoding="utf-8"), report_text, len(items))
+            log.info("Propuesta: ok=%s rama=%s %s", res.ok, res.branch, res.detail)
+        else:
+            log.warning("Sin plan propuesto (%s): no se abre PR.", proposed)
+
+    # Purga de datos efímeros (JSON crudo y clon del plan).
     purged = purge_tmp(settings.tmp_raw)
+    if settings.publish_proposal:
+        remaining = purge_extra([settings.plan_dir])
+        purged = purged and not remaining
     log.info("Temporal purgado: %s", purged)
     return 0 if purged else 1

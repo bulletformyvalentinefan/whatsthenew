@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import logging
 import sys
 
@@ -10,10 +11,13 @@ from . import __version__
 from .config import Settings, load_sources
 
 
-def _cmd_run(_args: argparse.Namespace) -> int:
+def _cmd_run(args: argparse.Namespace) -> int:
     from .pipeline import run
 
-    return run(Settings.from_env())
+    settings = Settings.from_env()
+    if args.publish is not None:
+        settings = dataclasses.replace(settings, publish_proposal=args.publish)
+    return run(settings)
 
 
 def _cmd_sources(_args: argparse.Namespace) -> int:
@@ -32,7 +36,20 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--version", action="version", version=f"whatsthenew {__version__}")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    sub.add_parser("run", help="Ejecuta el pipeline completo")
+    run_p = sub.add_parser("run", help="Ejecuta el pipeline completo")
+    run_p.add_argument(
+        "--publish",
+        dest="publish",
+        action="store_true",
+        default=None,
+        help="Publica la propuesta como PR en el repo privado del plan",
+    )
+    run_p.add_argument(
+        "--no-publish",
+        dest="publish",
+        action="store_false",
+        help="No publica la propuesta (solo genera el reporte local)",
+    )
     sub.add_parser("sources", help="Lista las fuentes configuradas")
 
     args = parser.parse_args(argv)

@@ -11,7 +11,9 @@ El archivo de datos crudos está en `$1` (por defecto: `/tmp/whatsthenew_raw.jso
 3. Resume el mercado por rol/nivel: años, stack, sueldos, ubicación, remoto.
 4. Marca el delta junior → senior de cada rol.
 5. Compara con el plan y propón cambios concretos.
-6. Escribe el resultado en `output/PROPOSED_UPDATES.md`, con fuente (dominio + URL) y fecha de
-   consulta (dd/mm/aaaa hh:mm) en cada fila.
+6. Escribe `output/PROPOSED_UPDATES.md` (reporte, máximo 2 páginas) con fuente
+   (dominio + URL) y fecha de consulta (dd/mm/aaaa hh:mm) en cada fila.
+7. Escribe `output/GOD_PLAN.proposed.md`: el plan completo ya actualizado, que es
+   lo que el pipeline convertirá en Pull Request.
 
-No hagas `git push`. Máximo 2 páginas, en español.
+No hagas `git push`. En español.

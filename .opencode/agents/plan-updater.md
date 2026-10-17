@@ -41,5 +41,9 @@ Reglas:
    arquitectura, mentoría, SLOs).
 4. Compara con lo que ya dice `GOD_PLAN.md` y propón cambios concretos.
 5. Cada fila **debe** citar su fuente (dominio + URL) y la fecha de consulta (dd/mm/aaaa hh:mm).
-6. Escribe **solo** dentro de `output/`. Nunca hagas `git push`.
-7. Idioma de salida: español. Formato: Markdown. Máximo 2 páginas.
+6. Escribe **solo** dentro de `output/`, y **dos** archivos:
+   - `output/PROPOSED_UPDATES.md` — el reporte de propuestas (máximo 2 páginas).
+   - `output/GOD_PLAN.proposed.md` — el plan **completo** ya actualizado con esos cambios,
+     conservando la estructura y el estilo del original. Es lo que se convertirá en PR.
+7. Nunca hagas `git push` ni toques nada fuera de `output/`.
+8. Idioma de salida: español. Formato: Markdown.

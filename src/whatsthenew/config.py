@@ -27,8 +27,12 @@ except Exception:  # pragma: no cover
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG_DIR = ROOT / "config"
 
+# Clon efímero del repositorio PRIVADO del plan (se borra al terminar).
+DEFAULT_PLAN_DIR = Path("/tmp/whatsthenew-plan")
+
 # Valores por defecto NO sensibles (endpoints públicos).
 DEFAULT_USER_AGENT = "whatsthenew/0.1 (market watcher)"
+DEFAULT_GITHUB_WEB = "https://github.com"
 DEFAULT_REDDIT_TOKEN_URL = "https://www.reddit.com/api/v1/access_token"
 DEFAULT_REDDIT_OAUTH_BASE = "https://oauth.reddit.com"
 DEFAULT_REDDIT_WWW_BASE = "https://www.reddit.com"
@@ -49,12 +53,31 @@ def _env_path(key: str, default: Path) -> Path:
     return Path(os.getenv(key, str(default)))
 
 
+def _env_bool(key: str, default: bool = False) -> bool:
+    raw = os.getenv(key)
+    if raw is None or raw == "":
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on", "si", "sí"}
+
+
 @dataclass(frozen=True)
 class Settings:
     # --- Rutas ---
     plan_file: Path
+    plan_dir: Path
     output_file: Path
+    proposed_plan_file: Path
     tmp_raw: Path
+
+    # --- Repositorio privado del plan (opcional) ---
+    plan_repo: str
+    plan_repo_branch: str
+    plan_repo_token: str
+    publish_proposal: bool
+    proposal_branch_prefix: str
+    git_author_name: str
+    git_author_email: str
+    github_web: str
 
     # --- Ritmo / red ---
     http_delay: float
@@ -87,10 +110,23 @@ class Settings:
 
     @classmethod
     def from_env(cls) -> Settings:
+        plan_dir = _env_path("PLAN_DIR", DEFAULT_PLAN_DIR)
         return cls(
-            plan_file=_env_path("PLAN_FILE", ROOT / "GOD_PLAN.md"),
+            plan_file=_env_path("PLAN_FILE", plan_dir / "GOD_PLAN.md"),
+            plan_dir=plan_dir,
             output_file=_env_path("OUTPUT_FILE", ROOT / "output" / "PROPOSED_UPDATES.md"),
+            proposed_plan_file=_env_path(
+                "PROPOSED_PLAN_FILE", ROOT / "output" / "GOD_PLAN.proposed.md"
+            ),
             tmp_raw=_env_path("TMP_RAW", Path("/tmp/whatsthenew_raw.json")),
+            plan_repo=os.getenv("PLAN_REPO", "").strip(),
+            plan_repo_branch=os.getenv("PLAN_REPO_BRANCH", "main").strip() or "main",
+            plan_repo_token=os.getenv("PLAN_REPO_TOKEN", "").strip(),
+            publish_proposal=_env_bool("PUBLISH_PROPOSAL", False),
+            proposal_branch_prefix=os.getenv("PROPOSAL_BRANCH_PREFIX", "proposal").strip() or "proposal",
+            git_author_name=os.getenv("GIT_AUTHOR_NAME", "whatsthenew bot").strip(),
+            git_author_email=os.getenv("GIT_AUTHOR_EMAIL", "whatsthenew@users.noreply.github.com").strip(),
+            github_web=os.getenv("GITHUB_WEB_BASE", DEFAULT_GITHUB_WEB).rstrip("/"),
             http_delay=float(os.getenv("HTTP_DELAY_SECONDS", "4")),
             http_timeout=float(os.getenv("HTTP_TIMEOUT_SECONDS", "25")),
             reddit_delay=float(os.getenv("REDDIT_DELAY_SECONDS", "10")),
