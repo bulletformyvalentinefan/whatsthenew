@@ -1,0 +1,13 @@
+[Unit]
+Description=whatsthenew — propuesta semanal de actualización del plan de carrera
+Documentation=https://github.com/bulletformyvalentinefan/whatsthenew
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/whatsthenew
+# --rm: el contenedor desaparece al terminar (efímero).
+ExecStart=/usr/bin/docker compose -f docker/docker-compose.server.yml run --rm whatsthenew
+# Sin restart: es una tarea puntual.
+RemainAfterExit=no

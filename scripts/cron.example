@@ -1,10 +1,11 @@
-# cron.example — ejecución periódica en el servidor (Opción A: contenedor efímero)
+# cron.example — ejecución semanal en el servidor
 #
+# Usa la IMAGEN publicada en GHCR (el servidor no compila nada).
 # Instalar con:  crontab -e
-# El contenedor se enciende, hace su trabajo y se apaga: 0 MB de RAM en espera.
 #
-# Cada 3 días a las 04:00 (hora del servidor):
-0 4 */3 * * cd "$HOME/Apps/whatsthenew" && docker compose -f docker/docker-compose.yml run --rm whatsthenew >> "$HOME/whatsthenew.log" 2>&1
+# El contenedor se enciende, hace su trabajo y se apaga: 0 MB de RAM en espera.
+# Cada lunes a las 04:00 (hora del servidor):
+0 4 * * 1 cd "$HOME/whatsthenew" && docker compose -f docker/docker-compose.server.yml run --rm whatsthenew >> "$HOME/whatsthenew.log" 2>&1
 
-# Alternativa sin Docker (venv local), cada 3 días:
-# 0 4 */3 * * cd "$HOME/Apps/whatsthenew" && ./scripts/run.sh >> "$HOME/whatsthenew.log" 2>&1
+# Alternativa con systemd (recomendada): ver scripts/server-install.sh y
+# systemd/whatsthenew.timer — mejor control de logs y evita solapamientos.
