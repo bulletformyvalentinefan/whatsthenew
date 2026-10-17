@@ -1,7 +1,7 @@
-# docker-compose.yml — contenedor efímero del pipeline
+# docker-compose.yml — contenedor efímero del pipeline (construye desde el código).
 #
 # No deja un proceso corriendo: se lanza con `docker compose run --rm` y termina.
-# Ver scripts/cron.example para la ejecución periódica.
+# Para el servidor (imagen ya publicada) usa docker-compose.server.yml.
 services:
   whatsthenew:
     build:
@@ -11,12 +11,14 @@ services:
     env_file:
       - ../.env
     environment:
+      # El clon del repo privado es efímero y vive dentro del contenedor.
+      PLAN_DIR: /tmp/whatsthenew-plan
+      PLAN_FILE: /tmp/whatsthenew-plan/GOD_PLAN.md
       TMP_RAW: /tmp/whatsthenew_raw.json
       OUTPUT_FILE: /app/output/PROPOSED_UPDATES.md
-      PLAN_FILE: /app/GOD_PLAN.md
+      PROPOSED_PLAN_FILE: /app/output/GOD_PLAN.proposed.md
     volumes:
-      # El plan de carrera (fuente de verdad) y la salida
-      - ../GOD_PLAN.md:/app/GOD_PLAN.md:ro
+      # Solo la salida se conserva en el host (el plan ya no se monta: es privado).
       - ../output:/app/output
     # Sin `restart`: debe morir al terminar.
     restart: "no"
