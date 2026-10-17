@@ -30,6 +30,13 @@ service-account*.json
 /data/
 /output/raw/
 /output/*.json
+/output/*.proposed.md
+
+# --- Plan de carrera (PRIVADO: vive en su propio repo) ---
+GOD_PLAN.md
+GOD_PLAN.*.md
+/.plan/
+/plan/
 
 # --- OS / editor ---
 .DS_Store
