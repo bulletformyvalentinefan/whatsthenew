@@ -15,10 +15,15 @@ que me interesan?** — y lo documenta sin acumular basura en disco ni RAM.
    Platform, Backend, Software, Observabilidad e Infra.
 2. **Clasifica** cada aviso por rol, nivel (junior/semi/senior/lead), años y stack.
 3. **Analiza** con OpenCode el delta entre lo que pide el mercado y lo que ya dice el plan.
-4. **Entrega** `output/PROPOSED_UPDATES.md` con la fuente y la fecha de cada dato.
-5. **Purga** los datos crudos temporales al terminar.
+4. **Propone**: abre un **Pull Request** en el repositorio privado del plan con la versión
+   actualizada. Tú revisas el diff y fusionas. **Nunca fusiona solo.**
+5. **Entrega** `output/PROPOSED_UPDATES.md` con la fuente y la fecha de cada dato.
+6. **Purga** los datos crudos y el clon del plan al terminar.
 
 Principio heredado: **mide → haz → documenta → apaga/limpia → libera**.
+
+> El plan de carrera **no vive en este repositorio** (es público): vive en un repo
+> **privado** aparte. Ver [`docs/PLAN-REPO.md`](docs/PLAN-REPO.md).
 
 ---
 
@@ -31,12 +36,14 @@ whatsthenew/
 │   ├── fetchers/      # Un módulo por familia de fuentes
 │   ├── classify.py    # Detección de nivel, años y stack
 │   ├── analyze.py     # Puente hacia OpenCode (IA)
+│   ├── publish.py     # Clona el repo privado y abre el PR de propuesta
 │   ├── report.py      # Genera PROPOSED_UPDATES.md
 │   ├── cleanup.py     # Purga de temporales
 │   └── pipeline.py    # Orquesta todo
-├── docs/              # Arquitectura, fuentes, esquema, OpenCode y protección de rama
-├── scripts/           # bootstrap, run, cron y protection
-├── docker/            # Dockerfile + compose
+├── docs/              # Arquitectura, despliegue, fuentes, esquema, OpenCode…
+├── scripts/           # bootstrap, run, cron, instalación en servidor y protección
+├── systemd/           # Timer semanal para el servidor
+├── docker/            # Dockerfile + compose (local y servidor)
 ├── output/            # Entregable (PROPOSED_UPDATES.md)
 ├── tests/             # Pruebas
 └── .opencode/         # Agente y comando de OpenCode
@@ -68,7 +75,14 @@ python -m whatsthenew run
 cat output/PROPOSED_UPDATES.md
 ```
 
-Con Docker:
+Para que además **abra el PR** con el plan propuesto (requiere `PLAN_REPO` +
+`PLAN_REPO_TOKEN` en el `.env`):
+
+```bash
+python -m whatsthenew run --publish
+```
+
+Con Docker (construyendo la imagen local):
 
 ```bash
 docker compose -f docker/docker-compose.yml run --rm whatsthenew
@@ -78,14 +92,18 @@ docker compose -f docker/docker-compose.yml run --rm whatsthenew
 
 ## Automatización
 
-El contenedor es **efímero**: se enciende **cada semana** por cron, hace su trabajo y se apaga.
-Entre ejecuciones **no consume RAM**. Ver `scripts/cron.example`.
+El contenedor es **efímero**: se enciende **cada semana**, hace su trabajo y se apaga.
+Entre ejecuciones **no consume RAM**. La imagen la construye GitHub y se publica en
+GHCR; el servidor solo hace `docker pull`. Guía completa:
+[`docs/DEPLOY.md`](docs/DEPLOY.md).
 
 ---
 
 ## Documentación
 
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — cómo funciona el pipeline y el uso de recursos
+- [`docs/DEPLOY.md`](docs/DEPLOY.md) — desplegar en el servidor (Docker + GHCR + timer semanal)
+- [`docs/PLAN-REPO.md`](docs/PLAN-REPO.md) — el repo privado del plan, el token y el flujo de PR
 - [`docs/FUENTES.md`](docs/FUENTES.md) — todas las fuentes, endpoints y reglas anti-bloqueo
 - [`docs/DATA-SCHEMA.md`](docs/DATA-SCHEMA.md) — el esquema de cada dato (con fuente y fecha)
 - [`docs/OPENCODE.md`](docs/OPENCODE.md) — cómo se conecta OpenCode para ordenar los datos
