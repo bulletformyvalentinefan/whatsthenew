@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "comment": "Roles objetivo. NO se excluye ningún rol ni nivel: todo se clasifica.",
+  "levels": ["intern", "trainee", "junior", "semi", "mid", "senior", "lead", "staff", "principal"],
+
+  "roles": [
+    {
+      "id": "cloud-engineer",
+      "label": "Cloud Engineer",
+      "en": ["cloud engineer", "cloud infrastructure engineer", "cloud support engineer", "cloud operations", "aws cloud engineer", "gcp cloud engineer", "azure cloud engineer"],
+      "es": ["ingeniero cloud", "soporte nube", "administrador nube", "nube"]
+    },
+    {
+      "id": "devops-engineer",
+      "label": "DevOps Engineer",
+      "en": ["devops engineer", "devops", "release engineer", "build engineer", "ci/cd engineer", "deployment engineer"],
+      "es": ["ingeniero devops", "despliegue", "integracion continua"]
+    },
+    {
+      "id": "sre",
+      "label": "Site Reliability Engineer",
+      "en": ["site reliability engineer", "sre", "production engineer", "reliability engineer"],
+      "es": ["confiabilidad", "guardias", "sre"]
+    },
+    {
+      "id": "platform-engineer",
+      "label": "Platform Engineer",
+      "en": ["platform engineer", "platform engineering", "internal developer platform", "developer experience", "devex engineer", "infrastructure platform"],
+      "es": ["ingeniero de plataforma", "plataforma interna"]
+    },
+    {
+      "id": "backend-engineer",
+      "label": "Backend Engineer",
+      "en": ["backend engineer", "back-end developer", "backend developer", "api engineer", "server engineer", "golang engineer", "java developer"],
+      "es": ["desarrollador backend", "backend"]
+    },
+    {
+      "id": "software-engineer",
+      "label": "Software Engineer",
+      "en": ["software engineer", "software developer", "fullstack developer", "full-stack engineer"],
+      "es": ["desarrollador de software", "desarrollador"]
+    },
+    {
+      "id": "observability",
+      "label": "Observability Engineer",
+      "en": ["observability engineer", "monitoring engineer", "observability", "sre observability"],
+      "es": ["observabilidad", "monitoreo"]
+    },
+    {
+      "id": "infra-sysadmin",
+      "label": "Infrastructure / Sysadmin",
+      "en": ["infrastructure engineer", "systems engineer", "sysadmin", "system administrator", "linux administrator"],
+      "es": ["administrador de sistemas", "infraestructura", "sysadmin"]
+    }
+  ],
+
+  "stack": [
+    "docker", "kubernetes", "k8s", "helm", "terraform", "ansible", "pulumi",
+    "aws", "gcp", "azure", "localstack",
+    "python", "go", "golang", "java", "bash", "node",
+    "github actions", "gitlab ci", "jenkins", "argocd", "gitops",
+    "prometheus", "grafana", "loki", "opentelemetry", "datadog",
+    "postgres", "mysql", "redis", "kafka", "mongodb",
+    "linux", "networking", "trivy", "sops"
+  ],
+
+  "geo": {
+    "boom": ["united states", "usa", "australia", "europe", "worldwide", "remote"],
+    "local": ["chile", "latam", "santiago"]
+  },
+
+  "fresh_days": {
+    "jobs": 30,
+    "reddit_market": 30,
+    "reddit_career_story": 365
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "version": 1,
+  "comment": "Búsquedas de Reddit. Reddit es la fuente más fuerte: se arma con cuidado.",
+  "auth": {
+    "mode": "oauth_client_credentials",
+    "docs": "https://www.reddit.com/prefs/apps",
+    "reddit_limit_per_minute": 100,
+    "fallback_without_token": "rss_con_pausa_10s"
+  },
+
+  "endpoints": {
+    "rss_sub": "https://www.reddit.com/r/{sub}/.rss",
+    "rss_search": "https://www.reddit.com/r/{sub}/search.rss?q={q}&restrict_sr=1&sort={sort}&t={t}",
+    "rss_search_global": "https://www.reddit.com/search.rss?q={q}&sort={sort}&t={t}",
+    "rss_comments": "https://www.reddit.com/r/{sub}/comments/{id}/.rss",
+    "oauth_token": "https://www.reddit.com/api/v1/access_token",
+    "oauth_search": "https://oauth.reddit.com/r/{sub}/search?q={q}&restrict_sr=1&sort={sort}&t={t}&limit={limit}",
+    "pullpush_backup": "https://api.pullpush.io/reddit/search/submission/?subreddit={sub}&q={q}&size={size}"
+  },
+
+  "response_range": {
+    "results_per_query": 15,
+    "selftext_chars": 2000,
+    "top_comments": 3
+  },
+
+  "subreddits": {
+    "role": ["devops", "sre", "kubernetes", "platformengineering", "aws", "googlecloud", "AZURE", "Terraform", "docker", "sysadmin", "ExperiencedDevs", "homelab", "selfhosted"],
+    "career": ["cscareerquestions", "cscareerquestionsEU", "cscareerquestionsLATAM", "ITCareerQuestions", "leetcode", "remotework"],
+    "company": ["amazon", "AmazonFC", "google", "microsoft", "MercadoLibre"],
+    "region": ["chileIT"]
+  },
+
+  "subreddits_pending_verify": ["MercadoLibre", "chileIT", "cscareerquestionsLATAM"],
+
+  "queries": [
+    {
+      "id": "hired-at-company",
+      "goal": "Cómo entró alguien a una empresa",
+      "template": "hired {company}",
+      "scope": "global",
+      "t": "year",
+      "sort": "top"
+    },
+    {
+      "id": "got-into-company",
+      "goal": "Historia de contratación",
+      "template": "how I got into {company}",
+      "scope": "global",
+      "t": "year",
+      "sort": "top"
+    },
+    {
+      "id": "interview-process",
+      "goal": "Proceso de entrevista",
+      "template": "{company} interview {role}",
+      "scope": "global",
+      "t": "year",
+      "sort": "top"
+    },
+    {
+      "id": "salary-country",
+      "goal": "Sueldo real",
+      "template": "{role} salary {country}",
+      "scope": "role",
+      "t": "month",
+      "sort": "top"
+    },
+    {
+      "id": "salary-chile",
+      "goal": "Sueldo Chile",
+      "template": "sueldo {role} chile",
+      "scope": "region",
+      "subreddits": ["chileIT"],
+      "t": "month",
+      "sort": "top"
+    },
+    {
+      "id": "study-plan",
+      "goal": "Qué estudiar",
+      "template": "study plan {role} 2026",
+      "scope": "global",
+      "t": "year",
+      "sort": "top"
+    },
+    {
+      "id": "junior-remote",
+      "goal": "Entrada junior remota",
+      "template": "junior {role} remote",
+      "scope": "role",
+      "t": "month",
+      "sort": "top"
+    },
+    {
+      "id": "junior-vs-senior",
+      "goal": "Delta de nivel",
+      "template": "junior vs senior {role}",
+      "scope": "role",
+      "t": "year",
+      "sort": "top"
+    },
+    {
+      "id": "cert-worth",
+      "goal": "Valor de certificados",
+      "template": "{cert} worth it",
+      "scope": "role",
+      "t": "year",
+      "sort": "top"
+    },
+    {
+      "id": "what-to-learn",
+      "goal": "Tendencias de skills",
+      "template": "what to learn {role} 2026",
+      "scope": "role",
+      "t": "year",
+      "sort": "top"
+    }
+  ]
+}

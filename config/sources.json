@@ -1,0 +1,212 @@
+{
+  "version": 1,
+  "comment": "Catálogo de fuentes verificadas. Regla: feed/API primero, HTML solo si no hay otra opción.",
+  "defaults": {
+    "http_delay_seconds": 4,
+    "reddit_delay_seconds": 10,
+    "user_agent": "whatsthenew/0.1 (+https://github.com/bulletformyvalentinefan/whatsthenew)",
+    "timeout_seconds": 25
+  },
+
+  "jobs_global": [
+    {
+      "id": "weworkremotely",
+      "name": "WeWorkRemotely",
+      "type": "rss",
+      "market": "global-remote",
+      "enabled": true,
+      "url": "https://weworkremotely.com/categories/remote-devops-sysadmin-jobs.rss",
+      "fields": ["title", "company", "region", "pubDate", "type"]
+    },
+    {
+      "id": "seek",
+      "name": "Seek (Australia)",
+      "type": "api",
+      "market": "australia",
+      "enabled": true,
+      "url": "https://www.seek.com.au/api/jobsearch/v5/search?keywords={query}&page={page}",
+      "notes": "La web da 403; su API interna devuelve JSON. Usar con moderación.",
+      "fields": ["title", "companyName", "listingDate", "jobId"]
+    },
+    {
+      "id": "jobicy",
+      "name": "Jobicy",
+      "type": "api",
+      "market": "global-remote",
+      "enabled": true,
+      "url": "https://jobicy.com/api/v2/remote-jobs?count=50&tag={tag}",
+      "fields": ["jobTitle", "companyName", "jobGeo", "jobType", "jobLevel", "pubDate"]
+    },
+    {
+      "id": "workingnomads",
+      "name": "Working Nomads",
+      "type": "api",
+      "market": "global-remote",
+      "enabled": true,
+      "url": "https://www.workingnomads.com/api/exposed_jobs/",
+      "fields": ["url", "title", "location", "pub_date"]
+    },
+    {
+      "id": "landingjobs",
+      "name": "Landing.jobs",
+      "type": "api",
+      "market": "europe",
+      "enabled": true,
+      "url": "https://landing.jobs/api/v1/jobs",
+      "fields": ["title", "company", "location", "published_at"]
+    },
+    {
+      "id": "himalayas",
+      "name": "Himalayas",
+      "type": "api",
+      "market": "global-remote",
+      "enabled": true,
+      "url": "https://himalayas.app/jobs/api?limit=100",
+      "fields": ["title", "companyName", "locationRestrictions", "salaryRange", "pubDate"]
+    },
+    {
+      "id": "remoteok",
+      "name": "RemoteOK",
+      "type": "api",
+      "market": "global-remote",
+      "enabled": true,
+      "url": "https://remoteok.com/api",
+      "fields": ["position", "company", "location", "date", "tags", "salary"]
+    },
+    {
+      "id": "remotive",
+      "name": "Remotive",
+      "type": "api",
+      "market": "global-remote",
+      "enabled": true,
+      "url": "https://remotive.com/api/remote-jobs?search={query}&limit=50",
+      "fields": ["title", "company_name", "candidate_required_location", "publication_date", "salary"]
+    },
+    {
+      "id": "hackernews",
+      "name": "Hacker News (Who is hiring)",
+      "type": "api",
+      "market": "global",
+      "enabled": true,
+      "url": "https://hn.algolia.com/api/v1/search?query={query}&tags=comment&hitsPerPage=50",
+      "fields": ["comment_text", "created_at", "story_id"]
+    },
+    {
+      "id": "jora_au",
+      "name": "Jora (Australia)",
+      "type": "html",
+      "market": "australia",
+      "enabled": true,
+      "url": "https://au.jora.com/jobs?q={query}",
+      "fields": ["title", "company", "location"]
+    },
+    {
+      "id": "dice",
+      "name": "Dice (USA)",
+      "type": "html",
+      "market": "usa",
+      "enabled": true,
+      "url": "https://www.dice.com/jobs?q={query}",
+      "fields": ["title", "company", "location"]
+    },
+    {
+      "id": "builtin",
+      "name": "BuiltIn (USA)",
+      "type": "html",
+      "market": "usa",
+      "enabled": false,
+      "url": "https://www.builtin.com/jobs",
+      "notes": "Sin RSS; parseo HTML. Desactivado por defecto."
+    },
+    {
+      "id": "themuse",
+      "name": "The Muse",
+      "type": "api",
+      "market": "global",
+      "enabled": false,
+      "url": "https://www.themuse.com/api/public/jobs?page=1",
+      "notes": "Inestable (a veces timeout). Desactivado por defecto."
+    }
+  ],
+
+  "jobs_chile": [
+    {
+      "id": "getonbrd",
+      "name": "GetOnBrd",
+      "type": "xml",
+      "market": "chile-latam",
+      "enabled": true,
+      "url": "https://www.getonbrd.com/jobs/feed.atom",
+      "notes": "Fuente principal para Chile. Feed XML con <job>.",
+      "fields": ["title", "date", "referencenumber", "url", "description"]
+    },
+    {
+      "id": "computrabajo_cl",
+      "name": "Computrabajo Chile",
+      "type": "html",
+      "market": "chile",
+      "enabled": true,
+      "url": "https://cl.computrabajo.com/trabajo-de-{query}",
+      "notes": "Sin RSS; parseo HTML."
+    },
+    {
+      "id": "laborum",
+      "name": "Laborum",
+      "type": "html",
+      "market": "chile",
+      "enabled": true,
+      "url": "https://www.laborum.cl/",
+      "notes": "Sin RSS; parseo HTML."
+    },
+    {
+      "id": "trabajando",
+      "name": "Trabajando",
+      "type": "html",
+      "market": "chile",
+      "enabled": true,
+      "url": "https://www.trabajando.cl/",
+      "notes": "Sin RSS; parseo HTML."
+    },
+    {
+      "id": "chiletrabajos",
+      "name": "Chiletrabajos",
+      "type": "html",
+      "market": "chile",
+      "enabled": true,
+      "url": "https://www.chiletrabajos.cl/",
+      "notes": "No tiene feed real (/rss devuelve el home)."
+    },
+    {
+      "id": "bne",
+      "name": "BNE (Bolsa Nacional de Empleo)",
+      "type": "html",
+      "market": "chile",
+      "enabled": true,
+      "url": "https://www.bne.cl/",
+      "notes": "Fuente oficial de gobierno; sin RSS."
+    }
+  ],
+
+  "news": [
+    { "id": "thenewstack", "type": "rss", "enabled": true, "url": "https://thenewstack.io/feed/", "lang": "en" },
+    { "id": "infoq", "type": "rss", "enabled": true, "url": "https://feed.infoq.com/", "lang": "en" },
+    { "id": "techcrunch", "type": "rss", "enabled": true, "url": "https://techcrunch.com/feed/", "lang": "en" },
+    { "id": "genbeta", "type": "rss", "enabled": true, "url": "https://feeds.weblogssl.com/genbeta", "lang": "es" },
+    { "id": "xataka", "type": "rss", "enabled": true, "url": "https://feeds.weblogssl.com/xataka2", "lang": "es" },
+    { "id": "hn_front", "type": "api", "enabled": true, "url": "https://hn.algolia.com/api/v1/search?tags=front_page", "lang": "en" }
+  ],
+
+  "company_blogs": [
+    { "id": "aws_devops", "company": "AWS", "type": "rss", "enabled": true, "url": "https://aws.amazon.com/blogs/devops/feed/" },
+    { "id": "netflix", "company": "Netflix", "type": "rss", "enabled": true, "url": "https://netflixtechblog.com/feed" },
+    { "id": "meta", "company": "Meta", "type": "rss", "enabled": true, "url": "https://engineering.fb.com/feed/" },
+    { "id": "googlecloud", "company": "Google Cloud", "type": "rss", "enabled": false, "url": "", "notes": "Feed por localizar." },
+    { "id": "mercadolibre", "company": "Mercado Libre", "type": "rss", "enabled": false, "url": "", "notes": "URL de feed por localizar (medium.com/feed/mercadolibre dio 404)." }
+  ],
+
+  "roadmaps": [
+    { "id": "roadmapsh", "type": "github", "enabled": true, "repo": "nilbuild/developer-roadmap", "branch": "master", "notes": "Contenido de roadmap.sh en Markdown." },
+    { "id": "devto", "type": "api", "enabled": true, "url": "https://dev.to/api/articles?tag=devops&per_page=30" },
+    { "id": "github_trending", "type": "html", "enabled": true, "url": "https://github.com/trending" }
+  ]
+}
