@@ -44,7 +44,11 @@ la imagen en GHCR.
 `GitHub → tu perfil → Packages → whatsthenew → Package settings → Change visibility → Public`.
 
 Si prefieres dejarlo privado, en el servidor haz `docker login ghcr.io` con un token
-que tenga `read:packages`.
+**clásico** que tenga `read:packages` (los tokens fine-grained no cubren GHCR):
+
+```bash
+echo "$GHCR_TOKEN" | docker login ghcr.io -u bulletformyvalentinefan --password-stdin
+```
 
 ---
 
