@@ -16,6 +16,13 @@ htmlcov/
 .env
 .env.*
 !.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+credentials.json
+service-account*.json
 
 # --- Datos de ejecución (efímeros) ---
 /tmp/

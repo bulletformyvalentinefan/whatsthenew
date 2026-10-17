@@ -90,6 +90,7 @@ Entre ejecuciones **no consume RAM**. Ver `scripts/cron.example`.
 - [`docs/DATA-SCHEMA.md`](docs/DATA-SCHEMA.md) — el esquema de cada dato (con fuente y fecha)
 - [`docs/OPENCODE.md`](docs/OPENCODE.md) — cómo se conecta OpenCode para ordenar los datos
 - [`docs/BRANCH-PROTECTION.md`](docs/BRANCH-PROTECTION.md) — protección de la rama `main`
+- [`docs/REDDIT-SETUP.md`](docs/REDDIT-SETUP.md) — credenciales de Reddit en `.env`
 
 ---
 
