@@ -1,0 +1,22 @@
+# docker-compose.yml — contenedor efímero del pipeline
+#
+# No deja un proceso corriendo: se lanza con `docker compose run --rm` y termina.
+# Ver scripts/cron.example para la ejecución periódica.
+services:
+  whatsthenew:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: whatsthenew:local
+    env_file:
+      - ../.env
+    environment:
+      TMP_RAW: /tmp/whatsthenew_raw.json
+      OUTPUT_FILE: /app/output/PROPOSED_UPDATES.md
+      PLAN_FILE: /app/GOD_PLAN.md
+    volumes:
+      # El plan de carrera (fuente de verdad) y la salida
+      - ../GOD_PLAN.md:/app/GOD_PLAN.md:ro
+      - ../output:/app/output
+    # Sin `restart`: debe morir al terminar.
+    restart: "no"
