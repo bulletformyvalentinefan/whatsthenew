@@ -1,7 +1,6 @@
 ---
 description: Ordena los datos de mercado por rol y nivel y propone actualizaciones al plan de carrera
 mode: primary
-model: 
 permissions:
   - action: "read"
     resource: "*"
