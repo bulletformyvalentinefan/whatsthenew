@@ -1,6 +1,10 @@
 # Reddit — sin credenciales (y credenciales opcionales)
 
-Reddit es la fuente más fuerte del proyecto. **No hace falta cuenta, app ni aprobación**:
+> **Estado actual: DESACTIVADO por defecto** (`ENABLE_REDDIT=0`). Reddit responde
+> 429/403 por IP incluso desde la red de casa, así que el pipeline usa solo fuentes
+> web. Este documento queda como referencia por si algún día hay OAuth o cambia el bloqueo.
+
+Reddit fue la fuente más fuerte del proyecto. **No hace falta cuenta, app ni aprobación**:
 el pipeline obtiene lo que necesitamos (tema, fecha y **nº de respuestas** de cada hilo) sin login.
 
 ## Cómo funciona (en orden)

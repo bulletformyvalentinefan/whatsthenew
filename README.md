@@ -1,7 +1,7 @@
 # whatsthenew
 
 > Pipeline efímero que trae información viva del mercado tech (empleos, sueldos, tendencias,
-> empresas y Reddit), la analiza con IA y genera un reporte de propuestas para mantener
+> empresas), la analiza con IA y genera un reporte de propuestas para mantener
 > actualizado el plan de carrera (`GOD_PLAN.md`).
 
 `whatsthenew` responde a una pregunta simple: **¿qué está pidiendo el mercado hoy para los roles
@@ -17,7 +17,7 @@ que me interesan?** — y lo documenta sin acumular basura en disco ni RAM.
 3. **Analiza** con OpenCode el delta entre lo que pide el mercado y lo que ya dice el plan.
 4. **Propone**: abre un **Pull Request** en el repositorio privado del plan con la versión
    actualizada. Tú revisas el diff y fusionas. **Nunca fusiona solo.**
-5. **Entrega** `output/PROPOSED_UPDATES.md` con la fuente y la fecha de cada dato.
+5. **Entrega** `output/PROPOSED_UPDATES.md` (< 10 KB) con la fuente y la fecha de cada dato.
 6. **Purga** los datos crudos y el clon del plan al terminar.
 
 Principio heredado: **mide → haz → documenta → apaga/limpia → libera**.
@@ -31,7 +31,7 @@ Principio heredado: **mide → haz → documenta → apaga/limpia → libera**.
 
 ```text
 whatsthenew/
-├── config/            # Catálogos: fuentes, roles y búsquedas de Reddit
+├── config/            # Catálogos: fuentes y roles
 ├── src/whatsthenew/   # Código del pipeline
 │   ├── fetchers/      # Un módulo por familia de fuentes
 │   ├── classify.py    # Detección de nivel, años y stack
@@ -56,7 +56,9 @@ whatsthenew/
 - Python 3.11+
 - Docker (opcional, para el contenedor efímero)
 - OpenCode instalado (`opencode run ...`)
-- **Nada más**: Reddit funciona sin credenciales (PullPush + RSS). La app OAuth es opcional.
+- **Nada más**: las fuentes web son abiertas y no piden credenciales.
+  Reddit queda **desactivado por defecto** (`ENABLE_REDDIT=0`) porque bloquea por IP
+  con 429/403; el código sigue disponible por si algún día usas OAuth.
 
 ---
 
