@@ -41,7 +41,13 @@ Reglas:
 4. Compara con lo que ya dice `GOD_PLAN.md` y propón cambios concretos.
 5. Cada fila **debe** citar su fuente (dominio + URL) y la fecha de consulta (dd/mm/aaaa hh:mm).
 6. Escribe **solo** dentro de `output/`, y **dos** archivos:
-   - `output/PROPOSED_UPDATES.md` — el reporte de propuestas (máximo 9 KB; el pipeline lo recorta si te pasas).
+   - `output/PROPOSED_UPDATES.md` — el reporte (máximo 9 KB; el pipeline lo recorta si te pasas).
+     Estructúralo en este orden, para que lo importante sobreviva a cualquier recorte:
+       1. **Cambios propuestos** (concretos: qué sección del plan cambia y por qué).
+       2. **Delta junior → senior** del mismo rol.
+       3. **Evidencia por rol × nivel** (compacta: una línea por rol/nivel; agrupa avisos,
+          no listes cada aviso).
+       4. **Fuentes consultadas** (dominio + URL).
    - `output/GOD_PLAN.proposed.md` — el plan **completo** ya actualizado con esos cambios,
      conservando la estructura y el estilo del original. Es lo que se convertirá en PR.
 7. Nunca hagas `git push` ni toques nada fuera de `output/`.
