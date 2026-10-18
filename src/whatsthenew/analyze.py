@@ -24,6 +24,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .config import ROOT, Settings
+from .report import cap_report_text
 
 PROMPT = """Tienes el JSON crudo del mercado adjunto ({raw}) y el plan de carrera actual en {plan}.
 
@@ -83,8 +84,18 @@ def run_analysis(settings: Settings, plan_path: Path) -> AnalyzeResult:
     # cwd = raíz del repo: así OpenCode encuentra `.opencode/agents/plan-updater.md`
     # aunque el plan viva en otro sitio (clon del repo privado).
     proc = subprocess.run(cmd, capture_output=True, text=True, cwd=str(ROOT))
+    ok = proc.returncode == 0 and settings.output_file.exists()
+
+    # Requisito del proyecto: el reporte pesa menos de 10 KB. La IA no siempre
+    # lo respeta, así que se recorta de forma determinista.
+    if ok:
+        text = settings.output_file.read_text(encoding="utf-8")
+        capped = cap_report_text(text)
+        if capped != text:
+            settings.output_file.write_text(capped, encoding="utf-8")
+
     return AnalyzeResult(
-        ok=proc.returncode == 0 and settings.output_file.exists(),
+        ok=ok,
         returncode=proc.returncode,
         stdout=proc.stdout,
         stderr=proc.stderr,

@@ -41,7 +41,7 @@ Reglas:
 4. Compara con lo que ya dice `GOD_PLAN.md` y propón cambios concretos.
 5. Cada fila **debe** citar su fuente (dominio + URL) y la fecha de consulta (dd/mm/aaaa hh:mm).
 6. Escribe **solo** dentro de `output/`, y **dos** archivos:
-   - `output/PROPOSED_UPDATES.md` — el reporte de propuestas (máximo 2 páginas).
+   - `output/PROPOSED_UPDATES.md` — el reporte de propuestas (máximo 9 KB; el pipeline lo recorta si te pasas).
    - `output/GOD_PLAN.proposed.md` — el plan **completo** ya actualizado con esos cambios,
      conservando la estructura y el estilo del original. Es lo que se convertirá en PR.
 7. Nunca hagas `git push` ni toques nada fuera de `output/`.
