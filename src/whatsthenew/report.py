@@ -34,7 +34,7 @@ def _role_key(item: dict[str, Any]) -> str:
     return str(role)[:60]
 
 
-def _cap(text: str, limit: int = MAX_BYTES) -> str:
+def cap_report_text(text: str, limit: int = MAX_BYTES) -> str:
     """Recorta en un salto de línea para no dejar una fila a medias."""
     encoded = text.encode("utf-8")
     if len(encoded) <= limit:
@@ -101,7 +101,7 @@ def build_fallback_report(payload: dict[str, Any]) -> str:
                         f"{' (sí)' if it.get('has_replies') else ' (no)'}"
                     )
 
-    return _cap("\n".join(lines) + "\n")
+    return cap_report_text("\n".join(lines) + "\n")
 
 
 def write_report(text: str, path: Path) -> None:

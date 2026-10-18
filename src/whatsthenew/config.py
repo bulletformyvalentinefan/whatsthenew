@@ -82,6 +82,7 @@ class Settings:
     # --- Ritmo / red ---
     http_delay: float
     http_timeout: float
+    enable_reddit: bool
     reddit_delay: float
     reddit_limit: int
     reddit_timeout: float
@@ -129,6 +130,7 @@ class Settings:
             github_web=os.getenv("GITHUB_WEB_BASE", DEFAULT_GITHUB_WEB).rstrip("/"),
             http_delay=float(os.getenv("HTTP_DELAY_SECONDS", "4")),
             http_timeout=float(os.getenv("HTTP_TIMEOUT_SECONDS", "25")),
+            enable_reddit=_env_bool("ENABLE_REDDIT", False),
             reddit_delay=float(os.getenv("REDDIT_DELAY_SECONDS", "10")),
             reddit_limit=int(os.getenv("REDDIT_LIMIT", "15")),
             reddit_timeout=float(os.getenv("REDDIT_TIMEOUT_SECONDS", "25")),

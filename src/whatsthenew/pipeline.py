@@ -145,8 +145,11 @@ def collect(settings: Settings, client: F.HttpClient, reddit: F.RedditClient) ->
         elif s["id"] == "roadmapsh":
             items += _safe(F.fetch_github_repo, client, s["repo"], s.get("branch", "master"), settings.github_api_base)
 
-    # --- Reddit (sin login) ---
-    items += collect_reddit(settings, reddit, client, rcfg)
+    # --- Reddit (sin login; desactivado por defecto porque bloquea por IP) ---
+    if settings.enable_reddit:
+        items += collect_reddit(settings, reddit, client, rcfg)
+    else:
+        log.info("Reddit desactivado (ENABLE_REDDIT=0): se usan solo fuentes web.")
 
     return items
 

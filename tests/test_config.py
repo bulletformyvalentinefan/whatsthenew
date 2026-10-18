@@ -54,3 +54,12 @@ def test_plan_repo_token_defaults_empty(monkeypatch):
     settings = Settings.from_env()
     assert settings.plan_repo == ""
     assert settings.plan_repo_token == ""
+
+
+def test_reddit_desactivado_por_defecto(monkeypatch):
+    monkeypatch.delenv("ENABLE_REDDIT", raising=False)
+    assert Settings.from_env().enable_reddit is False
+    monkeypatch.setenv("ENABLE_REDDIT", "1")
+    assert Settings.from_env().enable_reddit is True
+    monkeypatch.setenv("ENABLE_REDDIT", "no")
+    assert Settings.from_env().enable_reddit is False
